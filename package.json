@@ -1,7 +1,7 @@
 {
   "name": "@jwerre/rate-limit-redis",
   "version": "0.1.0",
-  "description": "A rate limiter for Node.js or Express HTTP server.",
+  "description": "A Redis based rate limiter for Node.js and Express.",
   "main": "lib/index.js",
   "scripts": {
     "test": "mocha test"
@@ -12,11 +12,13 @@
   },
   "keywords": [
     "redis",
-    "cache",
     "ratelimit",
     "rate",
     "limit",
     "429",
+	"express",
+	"expressjs",
+	"cache",
     "x-ratelimit-limit",
     "x-ratelimit-remaining",
     "retry-after",
