@@ -2,7 +2,7 @@
 
 This module is a Redis based rate limiter for Node.js and Express. It is intended to be used where your web severs are distributed across multiple systems or nodes (such as in load balancing) and there needs to be a centralized location to store request counts.
 
-## How it works:
+## How it works
 
 1. When a request is made a new temporary record is stored in Redis. This record is defined by the IP address of the request and will expire.
 1. If a second request is made before the first expires the record count is incremented.
@@ -72,21 +72,20 @@ rateLimitRedis.process(httpRequest)
 ## API
 | Data Type	| Argument	| Description	|
 | --		| --		| --			|
-| Object	| `options`	| Rate limit options. |
-| Object	| `options.redis`	| Redis options (see: https://github.com/NodeRedis/node-redis#options-object-properties) |
-| String	| `options.namespace`	| String to prepend to the Redis key e.g.: 'rate-limit:\<USER-IP\>'. |
-| Number	| `options.timeframe`	| Rate limit window in seconds. |
-| Number	| `options.limit`	| Maximum amount of request allowed within timeframe. |
-| Boolean	| `options.headers`	| Whether to set rate limit headers or not. |
-| [Object]	| `options.ignore`	| A list of routes where rate limit should not apply. |
-| String	| `options.ignore.path`	| The path to ignore (required). |
-| String	| `options.ignore.method`	| The request method of the ignored path (required). |
-| [String]	| `options.whitelist`	| A list of hosts or ip addresses where rate limit should not apply. |
+| Object	| `redis`	| Redis options (see: https://github.com/NodeRedis/node-redis#options-object-properties) |
+| String	| `namespace`	| String to prepend to the Redis key e.g.: 'rate-limit:\<USER-IP\>'. |
+| Number	| `timeframe`	| Rate limit window in seconds. |
+| Number	| `limit`	| Maximum amount of request allowed within timeframe. |
+| Boolean	| `headers`	| Whether to set rate limit headers or not. |
+| [Object]	| `ignore`	| A list of routes where rate limit should not apply. *This may be useful if you have automated tasks or health checks that you don't rate limited.* |
+| String	| `ignore.path`	| The path to ignore (required). |
+| String	| `ignore.method`	| The request method of the ignored path (default: `get`). |
+| [String]	| `whitelist`	| A list of ip addresses where rate limit should not apply. *This may be useful if you have automated tasks or health checks that you don't rate limited.* |
 
 
 ## Accuracy
 
-This module uses [Redis Expire](https://redis.io/commands/expire) to manage rate limit requests. If using Redis 2.4 accuracy could be as much as 1 second off. 
+This module uses [Redis Expire](https://redis.io/commands/expire) to manage rate limit requests. If using Redis 2.4 or lower accuracy could be as much as 1 second off. 
 
 ## Testing
 
