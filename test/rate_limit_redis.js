@@ -2,7 +2,7 @@ const assert = require('assert');
 const RateLimitRedis = require('../lib/rate_limit_redis');
 
 const TEST_IP = '192.168.0.1';
-const TIMEFRAME_SEC = 6;
+const TIMEFRAME_SEC = 2;
 const RATE_LIMIT = 100;
 
 describe('Rate Limit Redis Object Test', function() {
@@ -238,6 +238,64 @@ describe('Rate Limit Redis Object Test', function() {
 		
 		
 	});
+
+
+	it('should fail to make a single request', async function() {
+		
+		const request = {
+			ip: TEST_IP
+		};
+		
+		let result;
+
+		try {
+			result = await rateLimitRedis.process(request);
+		} catch (err) {
+			return Promise.reject(err);
+		}
+		
+		assert.ok(result);
+		assert.strictEqual(result.hasOwnProperty('status'), true);
+		assert.strictEqual(result.hasOwnProperty('limit'), true);
+		assert.strictEqual(result.hasOwnProperty('remaining'), true);
+		assert.strictEqual(result.hasOwnProperty('retry'), true);
+		assert.strictEqual(result.hasOwnProperty('error'), true);
+		assert.strictEqual(result.limit, RATE_LIMIT);
+		assert.strictEqual(result.status, 429);
+		assert.strictEqual(result.remaining, 0);
+		assert.strictEqual( isNaN( result.retry ), false );
+		
+
+	});
+
+	it('should make a single request after the rate limit has expires', function(done) {
+		
+		let timeframe = rateLimitRedis.timeframe * 1000;
+
+		this.timeout(timeframe+100);
+		
+		setTimeout(function(){
+
+			rateLimitRedis.process({ ip: TEST_IP })
+				.then(function(result){
+					assert.ok(result);
+					assert.strictEqual(result.hasOwnProperty('status'), true);
+					assert.strictEqual(result.hasOwnProperty('limit'), true);
+					assert.strictEqual(result.hasOwnProperty('remaining'), true);
+					assert.strictEqual(result.hasOwnProperty('retry'), false);
+					assert.strictEqual(result.hasOwnProperty('error'), false);
+					assert.strictEqual(result.status, 200);
+					assert.strictEqual(result.limit, RATE_LIMIT);
+					assert.strictEqual(result.remaining, RATE_LIMIT-1);
+					done();
+				})
+				.catch(done);
+
+		}, timeframe);
+		
+
+	});
+
 
 	
 	
