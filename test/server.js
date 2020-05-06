@@ -34,7 +34,7 @@ describe('Rate Limit Redis Server Test', function() {
 	
 	});
 
-	it('should make request until rate limit is reached', async function ()  {
+	it('should make requests until rate limit is reached', async function ()  {
 		
 		// this.timeout(2000);
 		

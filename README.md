@@ -90,7 +90,7 @@ rateLimitRedis.process(httpRequest)
 | `Number`		| `timeframe`	| Rate limit window in seconds. |
 | `Number`		| `limit`	| Maximum amount of request allowed within timeframe. |
 | `Boolean`		| `headers`	| Whether to set rate limit headers or not. |
-| `[Object]`	| `customRoutes`	| A list of routes where you can set custom rate limits (this will overwrite default rate limit). |
+| `[Object]`	| `customRoutes`	| A list of routes where you can set custom rate limits. This will create a new rate limit with unique key based on the ip, method and path. |
 | `String`		| `customRoutes.path`	| The path to ignore (required). |
 | `String`		| `customRoutes.method`	| The request method of the ignored path (default: `get`). |
 | `Number`		| `customRoutes.timeframe`	| Rate limit window in seconds for custom route. |
@@ -111,3 +111,7 @@ Ensure Node.js and Redis is installed and running. Then execute the following co
 npm install
 npm test
 ```
+
+## Benchmark
+
+TODO: Set up benchmark test.

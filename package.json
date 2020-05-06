@@ -4,7 +4,8 @@
   "description": "A Redis based rate limiter for Node.js and Express.",
   "main": "lib/index.js",
   "scripts": {
-    "test": "mocha test"
+    "test": "mocha test",
+    "benchmark": "node test/benchmark.js"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,7 @@
     "redis": "^3.0.2"
   },
   "devDependencies": {
+    "benchmark": "^2.1.4",
     "express": "^4.17.1",
     "mocha": "^4.0.1",
     "supertest": "^4.0.2"
