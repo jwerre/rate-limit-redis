@@ -28,13 +28,26 @@ const rateLimitArgs = {
 	timeframe: 60,
 	limit: 120,
 	headers: true,
-	ignore: [
+	whitelist: [ '192.168.20.20' ],
+	customRoutes: [
 		{
-			path: '/some/path/to/ignore',
-			method: 'get'
-		}
-	],
-	whitelist: [ '192.168.20.20' ]
+			path: '/stingy/rate/limit',
+			method: 'POST',
+			timeframe: 30,
+			limit: 5,
+		},
+		{
+			path: '/loose/rate/limit',
+			method: 'PUT',
+			timeframe: 120,
+			limit: 500,
+		},
+		{
+			path: '/ignore/rate/limit',
+			method: 'GET',
+			ignore: true
+		},
+	]
 };
 
 // use trust proxy if behind load balancer
@@ -72,15 +85,18 @@ rateLimitRedis.process(httpRequest)
 ## API
 | Data Type	| Argument	| Description	|
 | --		| --		| --			|
-| Object	| `redis`	| Redis options (see: https://github.com/NodeRedis/node-redis#options-object-properties) |
-| String	| `namespace`	| String to prepend to the Redis key e.g.: 'rate-limit:\<USER-IP\>'. |
-| Number	| `timeframe`	| Rate limit window in seconds. |
-| Number	| `limit`	| Maximum amount of request allowed within timeframe. |
-| Boolean	| `headers`	| Whether to set rate limit headers or not. |
-| [Object]	| `ignore`	| A list of routes where rate limit should not apply. *This may be useful if you have automated tasks or health checks that you don't rate limited.* |
-| String	| `ignore.path`	| The path to ignore (required). |
-| String	| `ignore.method`	| The request method of the ignored path (default: `get`). |
-| [String]	| `whitelist`	| A list of ip addresses where rate limit should not apply. *This may be useful if you have automated tasks or health checks that you don't rate limited.* |
+| `Object`		| `redis`	| Redis options [https://github.com/NodeRedis/node-redis#options-object-properties](more...) |
+| `String`		| `namespace`	| String to prepend to the Redis key e.g.: 'rate-limit:\<USER-IP\>'. |
+| `Number`		| `timeframe`	| Rate limit window in seconds. |
+| `Number`		| `limit`	| Maximum amount of request allowed within timeframe. |
+| `Boolean`		| `headers`	| Whether to set rate limit headers or not. |
+| `[Object]`	| `customRoutes`	| A list of routes where you can set custom rate limits (this will overwrite default rate limit). |
+| `String`		| `customRoutes.path`	| The path to ignore (required). |
+| `String`		| `customRoutes.method`	| The request method of the ignored path (default: `get`). |
+| `Number`		| `customRoutes.timeframe`	| Rate limit window in seconds for custom route. |
+| `Number`		| `customRoutes.limit`	| Maximum amount of request allowed within timeframe for custom route. |
+| `Boolean`		| `customRoutes.ignore`	| Rate limit request to this custom route will be ignored. *Be careful with this one.* |
+| `[String]`	| `whitelist`	| A list of ip addresses where rate limit should not apply. *This may be useful if you have automated tasks or health checks coming from known IPs and you don't want to apply a rate limit them.* |
 
 
 ## Accuracy

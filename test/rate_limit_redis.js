@@ -11,28 +11,51 @@ describe('Rate Limit Redis Object Test', function() {
 		// redis: {},
 		timeframe: TIMEFRAME_SEC,
 		limit: RATE_LIMIT,
-		ignore: [
+		namespace: 'my-rate-limiter:',
+		whitelist: [ '192.168.20.20' ],
+		customRoutes: [
 			{
-				path: '/some/path/to/ignore',
-				method: 'get'
-			}
+				path: '/stingy/rate/limit',
+				method: 'POST',
+				timeframe: 300,
+				limit: 5,
+			},
+			{
+				path: '/ignore/rate/limit',
+				ignore: true
+			},
 		],
-		whitelist: [ '192.168.20.20' ]
 	};
 	
 	const rateLimitRedis = new RateLimitRedis(options);
 	
 	after ( function ()  {
-		return rateLimitRedis.reset(TEST_IP);
+		return rateLimitRedis.reset( rateLimitRedis.getKey(TEST_IP) );
 	});
 	
+
+	it('should have set the correct properties', function() {
+
+		assert.strictEqual(rateLimitRedis.timeframe, options.timeframe);
+		assert.strictEqual(rateLimitRedis.limit, options.limit);
+		assert.strictEqual(rateLimitRedis.namespace, options.namespace);
+		assert.deepStrictEqual(rateLimitRedis.whitelist, options.whitelist);
+		assert.deepStrictEqual(rateLimitRedis.customRoutes, options.customRoutes);
+		
+	});
+
+	it('should retrieve the correct key value', function() {
+
+		assert.strictEqual(rateLimitRedis.getKey(TEST_IP), `${rateLimitRedis.namespace}:${TEST_IP}`);
+		
+	});
 
 	it('should create a new request record', async function() {
 		
 		let result;
 		
 		try {
-			result = await rateLimitRedis.setNewRequestCount(TEST_IP);
+			result = await rateLimitRedis.setNewRequestCount(rateLimitRedis.getKey(TEST_IP));
 		} catch (err) {
 			return Promise.reject(err);
 		}
@@ -46,7 +69,7 @@ describe('Rate Limit Redis Object Test', function() {
 		let result;
 		
 		try {
-			result = await rateLimitRedis.getRequestCount(TEST_IP);
+			result = await rateLimitRedis.getRequestCount(rateLimitRedis.getKey(TEST_IP));
 		} catch (err) {
 			return Promise.reject(err);
 		}
@@ -60,7 +83,7 @@ describe('Rate Limit Redis Object Test', function() {
 		let result;
 		
 		try {
-			result = await rateLimitRedis.incrementRequestCount(TEST_IP);
+			result = await rateLimitRedis.incrementRequestCount(rateLimitRedis.getKey(TEST_IP));
 		} catch (err) {
 			return Promise.reject(err);
 		}
@@ -74,7 +97,7 @@ describe('Rate Limit Redis Object Test', function() {
 		let result;
 		
 		try {
-			result = await rateLimitRedis.getTimeLeft(TEST_IP);
+			result = await rateLimitRedis.getTimeLeft(rateLimitRedis.getKey(TEST_IP));
 		} catch (err) {
 			return Promise.reject(err);
 		}
@@ -88,11 +111,11 @@ describe('Rate Limit Redis Object Test', function() {
 		let result;
 		
 		try {
-			result = await rateLimitRedis.reset(TEST_IP);
+			result = await rateLimitRedis.reset(rateLimitRedis.getKey(TEST_IP));
 		} catch (err) {
 			return Promise.reject(err);
 		}
-
+		
 		assert.strictEqual(result, true);
 		
 	});
@@ -102,7 +125,7 @@ describe('Rate Limit Redis Object Test', function() {
 		let result;
 		
 		try {
-			result = await rateLimitRedis.getRequestCount(TEST_IP);
+			result = await rateLimitRedis.getRequestCount(rateLimitRedis.getKey(TEST_IP));
 		} catch (err) {
 			return Promise.reject(err);
 		}
@@ -138,32 +161,6 @@ describe('Rate Limit Redis Object Test', function() {
 
 	});
 
-	it('should ignore rate limit at path', async function() {
-
-		const request = {
-			ip: TEST_IP,
-			url: options.ignore[0].path,
-			method: options.ignore[0].method,
-		};
-		
-		let result;
-
-		try {
-			result = await rateLimitRedis.process(request);
-		} catch (err) {
-			return Promise.reject(err);
-		}
-		
-		assert.ok(result);
-		assert.strictEqual(result.hasOwnProperty('status'), true);
-		assert.strictEqual(result.hasOwnProperty('limit'), false);
-		assert.strictEqual(result.hasOwnProperty('remaining'), false);
-		assert.strictEqual(result.hasOwnProperty('retry'), false);
-		assert.strictEqual(result.hasOwnProperty('error'), false);
-		assert.strictEqual(result.status, 200);
-
-	});
-
 	it('should ignore rate limit on ip', async function() {
 
 		const request = {
@@ -192,9 +189,8 @@ describe('Rate Limit Redis Object Test', function() {
 		
 		// this.timeout(2000);
 		
-		// reset the test
 		try {
-			await rateLimitRedis.reset(TEST_IP);
+			await rateLimitRedis.reset(rateLimitRedis.getKey(TEST_IP));
 		} catch (err) {
 			return Promise.reject(err);
 		}
@@ -212,8 +208,6 @@ describe('Rate Limit Redis Object Test', function() {
 			} catch (err) {
 				return Promise.reject(err);
 			}
-			
-			// console.log(i, response.status, response.remaining);
 			
 			assert.strictEqual(response.hasOwnProperty('status'), true);
 			assert.strictEqual(response.hasOwnProperty('limit'), true);
@@ -296,7 +290,94 @@ describe('Rate Limit Redis Object Test', function() {
 
 	});
 
+	it('should violate a custom rate limit', async function ()  {
 
+		try {
+			await rateLimitRedis.reset(rateLimitRedis.getKey(TEST_IP));
+		} catch (err) {
+			return Promise.reject(err);
+		}
+		
+		const args = options.customRoutes[0];
+		const request = {
+			ip: TEST_IP,
+			url: args.path,
+			method: args.method,
+		};
+		
+		for (let i = 1; i <= args.limit; i++) {
+
+			let response;
+
+			try {
+				response = await rateLimitRedis.process(request);
+			} catch (err) {
+				return Promise.reject(err);
+			}
+			
+			assert.strictEqual(response.hasOwnProperty('status'), true);
+			assert.strictEqual(response.hasOwnProperty('limit'), true);
+			assert.strictEqual(response.hasOwnProperty('remaining'), true);
+			assert.strictEqual(response.limit, args.limit);
+
+			
+			if (i < args.limit) {
+				assert.strictEqual(response.status, 200);
+				assert.strictEqual(response.remaining, args.limit-i);
+				assert.strictEqual(response.hasOwnProperty('retry'), false);
+				assert.strictEqual(response.hasOwnProperty('error'), false);
+			} else {
+				assert.strictEqual(response.status, 429);
+				assert.strictEqual(response.remaining, 0);
+				assert.strictEqual(response.hasOwnProperty('retry'), true);
+				assert.strictEqual(response.hasOwnProperty('error'), true);
+				assert.strictEqual( isNaN( response.retry ), false );
+			}
+
+		}
+		
+		
+	});
+
+
+	it('should not violate rate limit since path is ignored', async function ()  {
+		
+
+		try {
+			await rateLimitRedis.reset(rateLimitRedis.getKey(TEST_IP));
+		} catch (err) {
+			return Promise.reject(err);
+		}
+
+		const args = options.customRoutes[1];
+
+		const request = {
+			ip: TEST_IP,
+			url: args.path,
+			method: args.method,
+		};
+		
+		for (let i = 1; i <= RATE_LIMIT+10; i++) {
+
+			let response;
+
+			try {
+				response = await rateLimitRedis.process(request);
+			} catch (err) {
+				return Promise.reject(err);
+			}
+			
+			assert.strictEqual(response.hasOwnProperty('limit'), false);
+			assert.strictEqual(response.hasOwnProperty('remaining'), false);
+			assert.strictEqual(response.hasOwnProperty('retry'), false);
+			assert.strictEqual(response.hasOwnProperty('error'), false);
+			assert.strictEqual(response.hasOwnProperty('status'), true);
+			assert.strictEqual(response.status, 200);
+
+		}
+		
+		
+	});
 	
 	
 
