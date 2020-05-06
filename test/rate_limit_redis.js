@@ -16,8 +16,8 @@ describe('Rate Limit Redis Object Test', function() {
 		customRoutes: [
 			{
 				path: '/stingy/rate/limit',
-				method: 'POST',
-				timeframe: 300,
+				method: 'post',
+				timeframe: 6,
 				limit: 5,
 			},
 			{
@@ -156,6 +156,7 @@ describe('Rate Limit Redis Object Test', function() {
 		assert.strictEqual(result.hasOwnProperty('error'), false);
 		assert.strictEqual(result.status, 200);
 		assert.strictEqual(result.limit, RATE_LIMIT);
+		assert.strictEqual(result.timeframe, TIMEFRAME_SEC);
 		assert.strictEqual(result.remaining, RATE_LIMIT-1);
 		
 
@@ -213,6 +214,7 @@ describe('Rate Limit Redis Object Test', function() {
 			assert.strictEqual(response.hasOwnProperty('limit'), true);
 			assert.strictEqual(response.hasOwnProperty('remaining'), true);
 			assert.strictEqual(response.limit, RATE_LIMIT);
+			assert.strictEqual(response.timeframe, TIMEFRAME_SEC);
 
 			
 			if (i < RATE_LIMIT) {
@@ -255,6 +257,7 @@ describe('Rate Limit Redis Object Test', function() {
 		assert.strictEqual(result.hasOwnProperty('retry'), true);
 		assert.strictEqual(result.hasOwnProperty('error'), true);
 		assert.strictEqual(result.limit, RATE_LIMIT);
+		assert.strictEqual(result.timeframe, TIMEFRAME_SEC);
 		assert.strictEqual(result.status, 429);
 		assert.strictEqual(result.remaining, 0);
 		assert.strictEqual( isNaN( result.retry ), false );
@@ -280,6 +283,7 @@ describe('Rate Limit Redis Object Test', function() {
 					assert.strictEqual(result.hasOwnProperty('error'), false);
 					assert.strictEqual(result.status, 200);
 					assert.strictEqual(result.limit, RATE_LIMIT);
+					assert.strictEqual(result.timeframe, TIMEFRAME_SEC);
 					assert.strictEqual(result.remaining, RATE_LIMIT-1);
 					done();
 				})
@@ -292,11 +296,6 @@ describe('Rate Limit Redis Object Test', function() {
 
 	it('should violate a custom rate limit', async function ()  {
 
-		try {
-			await rateLimitRedis.reset(rateLimitRedis.getKey(TEST_IP));
-		} catch (err) {
-			return Promise.reject(err);
-		}
 		
 		const args = options.customRoutes[0];
 		const request = {
@@ -304,7 +303,14 @@ describe('Rate Limit Redis Object Test', function() {
 			url: args.path,
 			method: args.method,
 		};
-		
+		const key = rateLimitRedis.getKey(TEST_IP, `${args.method}:${args.path}`);
+
+		try {
+			await rateLimitRedis.reset(key);
+		} catch (err) {
+			return Promise.reject(err);
+		}
+
 		for (let i = 1; i <= args.limit; i++) {
 
 			let response;
@@ -318,9 +324,10 @@ describe('Rate Limit Redis Object Test', function() {
 			assert.strictEqual(response.hasOwnProperty('status'), true);
 			assert.strictEqual(response.hasOwnProperty('limit'), true);
 			assert.strictEqual(response.hasOwnProperty('remaining'), true);
+			assert.strictEqual(response.hasOwnProperty('timeframe'), true);
+			assert.strictEqual(response.timeframe, args.timeframe);
 			assert.strictEqual(response.limit, args.limit);
 
-			
 			if (i < args.limit) {
 				assert.strictEqual(response.status, 200);
 				assert.strictEqual(response.remaining, args.limit-i);
