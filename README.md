@@ -67,7 +67,7 @@ If you need a little more control you can instantiate the `RateLimitRedis` class
 ```js
 const RateLimitRedis = require('@jwerre/rate_limit_redis/lib/rate_limit_redis');
 
-const rateLimiteRedis = new RateLimitRedis({
+const rateLimitRedis = new RateLimitRedis({
 	timeframe: 60,
 	limit: 120,
 });

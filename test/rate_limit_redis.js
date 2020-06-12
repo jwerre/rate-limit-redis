@@ -29,8 +29,9 @@ describe('Rate Limit Redis Object Test', function() {
 	
 	const rateLimitRedis = new RateLimitRedis(options);
 	
-	after ( function ()  {
-		return rateLimitRedis.reset( rateLimitRedis.getKey(TEST_IP) );
+	after ( function (done)  {
+		rateLimitRedis.reset( rateLimitRedis.getKey(TEST_IP) );
+		rateLimitRedis.redisClient.quit(done);
 	});
 	
 
