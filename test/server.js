@@ -3,22 +3,23 @@ const rateLimitRedis = require('../lib');
 const request = require('supertest');
 const express = require('express');
 
-
 const TEST_IP = '192.168.0.2';
 const TIMEFRAME_SEC = 1;
 const RATE_LIMIT = 50;
-const PORT = 8080;
+const PORT = 10358;
 
 describe('Rate Limit Redis Server Test', function() {
 	
 	const app = express();
-
+	
 	const options = {
 		timeframe: TIMEFRAME_SEC,
 		limit: RATE_LIMIT,
 		// headers: true,
 	};
 	
+	let server;
+
 	before( function ()  {
 	
 		app.enable('trust proxy');
@@ -27,16 +28,19 @@ describe('Rate Limit Redis Server Test', function() {
 	
 		app.get('/', (req, res) => {
 			process.nextTick( () => res.send('OK') );
-			// setTimeout( () => res.send('Rate Limit Test'), 500 );
 		});
 		
-		app.listen( PORT );
+		server = app.listen( PORT );
 	
+	});
+
+	after(function(done){
+		server.close( () => done() );
 	});
 
 	it('should make requests until rate limit is reached', async function ()  {
 		
-		// this.timeout(2000);
+		this.timeout(2000);
 		
 		for (let i = 1; i <= RATE_LIMIT; i++) {
 
@@ -75,8 +79,7 @@ cache expire. Run the test again in ${TIMEFRAME_SEC} second(s)`);
 				assert.strictEqual( isNaN( res.headers['retry-after'] ), false );
 			}
 
-		}
-		
+		}		
 		
 	});
 

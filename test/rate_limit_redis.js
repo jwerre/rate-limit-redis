@@ -5,7 +5,7 @@ const TEST_IP = '192.168.0.1';
 const TIMEFRAME_SEC = 2;
 const RATE_LIMIT = 100;
 
-describe('Rate Limit Redis Object Test', function() {
+describe('Rate Limit Redis Class Test', function() {
 
 	const options = {
 		// redis: {},
@@ -19,6 +19,12 @@ describe('Rate Limit Redis Object Test', function() {
 				method: 'post',
 				timeframe: 6,
 				limit: 5,
+			},
+			{
+				path: /^\/regex\/limit\/[0-9]{1,5}$/,
+				method: 'get',
+				timeframe: 60,
+				limit: 25,
 			},
 			{
 				path: '/ignore/rate/limit',
@@ -150,11 +156,11 @@ describe('Rate Limit Redis Object Test', function() {
 		}
 		
 		assert.ok(result);
-		assert.strictEqual(result.hasOwnProperty('status'), true);
-		assert.strictEqual(result.hasOwnProperty('limit'), true);
-		assert.strictEqual(result.hasOwnProperty('remaining'), true);
-		assert.strictEqual(result.hasOwnProperty('retry'), false);
-		assert.strictEqual(result.hasOwnProperty('error'), false);
+		assert.strictEqual('status' in result, true);
+		assert.strictEqual('limit' in result, true);
+		assert.strictEqual('remaining' in result, true);
+		assert.strictEqual('retry' in result, false);
+		assert.strictEqual('error' in result, false);
 		assert.strictEqual(result.status, 200);
 		assert.strictEqual(result.limit, RATE_LIMIT);
 		assert.strictEqual(result.timeframe, TIMEFRAME_SEC);
@@ -178,11 +184,11 @@ describe('Rate Limit Redis Object Test', function() {
 		}
 		
 		assert.ok(result);
-		assert.strictEqual(result.hasOwnProperty('status'), true);
-		assert.strictEqual(result.hasOwnProperty('limit'), false);
-		assert.strictEqual(result.hasOwnProperty('remaining'), false);
-		assert.strictEqual(result.hasOwnProperty('retry'), false);
-		assert.strictEqual(result.hasOwnProperty('error'), false);
+		assert.strictEqual('status' in result, true);
+		assert.strictEqual('limit' in result, false);
+		assert.strictEqual('remaining' in result, false);
+		assert.strictEqual('retry' in result, false);
+		assert.strictEqual('error' in result, false);
 		assert.strictEqual(result.status, 200);
 
 	});
@@ -211,9 +217,9 @@ describe('Rate Limit Redis Object Test', function() {
 				return Promise.reject(err);
 			}
 			
-			assert.strictEqual(response.hasOwnProperty('status'), true);
-			assert.strictEqual(response.hasOwnProperty('limit'), true);
-			assert.strictEqual(response.hasOwnProperty('remaining'), true);
+			assert.strictEqual('status' in response, true);
+			assert.strictEqual('limit' in response, true);
+			assert.strictEqual('remaining' in response, true);
 			assert.strictEqual(response.limit, RATE_LIMIT);
 			assert.strictEqual(response.timeframe, TIMEFRAME_SEC);
 
@@ -221,13 +227,13 @@ describe('Rate Limit Redis Object Test', function() {
 			if (i < RATE_LIMIT) {
 				assert.strictEqual(response.status, 200);
 				assert.strictEqual(response.remaining, RATE_LIMIT-i);
-				assert.strictEqual(response.hasOwnProperty('retry'), false);
-				assert.strictEqual(response.hasOwnProperty('error'), false);
+				assert.strictEqual('retry' in response, false);
+				assert.strictEqual('error' in response, false);
 			} else {
 				assert.strictEqual(response.status, 429);
 				assert.strictEqual(response.remaining, 0);
-				assert.strictEqual(response.hasOwnProperty('retry'), true);
-				assert.strictEqual(response.hasOwnProperty('error'), true);
+				assert.strictEqual('retry' in response, true);
+				assert.strictEqual('error' in response, true);
 				assert.strictEqual( isNaN( response.retry ), false );
 			}
 
@@ -252,11 +258,11 @@ describe('Rate Limit Redis Object Test', function() {
 		}
 		
 		assert.ok(result);
-		assert.strictEqual(result.hasOwnProperty('status'), true);
-		assert.strictEqual(result.hasOwnProperty('limit'), true);
-		assert.strictEqual(result.hasOwnProperty('remaining'), true);
-		assert.strictEqual(result.hasOwnProperty('retry'), true);
-		assert.strictEqual(result.hasOwnProperty('error'), true);
+		assert.strictEqual('status' in result, true);
+		assert.strictEqual('limit' in result, true);
+		assert.strictEqual('remaining' in result, true);
+		assert.strictEqual('retry' in result, true);
+		assert.strictEqual('error' in result, true);
 		assert.strictEqual(result.limit, RATE_LIMIT);
 		assert.strictEqual(result.timeframe, TIMEFRAME_SEC);
 		assert.strictEqual(result.status, 429);
@@ -277,11 +283,11 @@ describe('Rate Limit Redis Object Test', function() {
 			rateLimitRedis.process({ ip: TEST_IP })
 				.then(function(result){
 					assert.ok(result);
-					assert.strictEqual(result.hasOwnProperty('status'), true);
-					assert.strictEqual(result.hasOwnProperty('limit'), true);
-					assert.strictEqual(result.hasOwnProperty('remaining'), true);
-					assert.strictEqual(result.hasOwnProperty('retry'), false);
-					assert.strictEqual(result.hasOwnProperty('error'), false);
+					assert.strictEqual('status' in result, true);
+					assert.strictEqual('limit' in result, true);
+					assert.strictEqual('remaining' in result, true);
+					assert.strictEqual('retry' in result, false);
+					assert.strictEqual('error' in result, false);
 					assert.strictEqual(result.status, 200);
 					assert.strictEqual(result.limit, RATE_LIMIT);
 					assert.strictEqual(result.timeframe, TIMEFRAME_SEC);
@@ -322,23 +328,129 @@ describe('Rate Limit Redis Object Test', function() {
 				return Promise.reject(err);
 			}
 			
-			assert.strictEqual(response.hasOwnProperty('status'), true);
-			assert.strictEqual(response.hasOwnProperty('limit'), true);
-			assert.strictEqual(response.hasOwnProperty('remaining'), true);
-			assert.strictEqual(response.hasOwnProperty('timeframe'), true);
+			assert.strictEqual('status' in response, true);
+			assert.strictEqual('limit' in response, true);
+			assert.strictEqual('remaining' in response, true);
+			assert.strictEqual('timeframe' in response, true);
 			assert.strictEqual(response.timeframe, args.timeframe);
 			assert.strictEqual(response.limit, args.limit);
 
 			if (i < args.limit) {
 				assert.strictEqual(response.status, 200);
 				assert.strictEqual(response.remaining, args.limit-i);
-				assert.strictEqual(response.hasOwnProperty('retry'), false);
-				assert.strictEqual(response.hasOwnProperty('error'), false);
+				assert.strictEqual('retry' in response, false);
+				assert.strictEqual('error' in response, false);
 			} else {
 				assert.strictEqual(response.status, 429);
 				assert.strictEqual(response.remaining, 0);
-				assert.strictEqual(response.hasOwnProperty('retry'), true);
-				assert.strictEqual(response.hasOwnProperty('error'), true);
+				assert.strictEqual('retry' in response, true);
+				assert.strictEqual('error' in response, true);
+				assert.strictEqual( isNaN( response.retry ), false );
+			}
+
+		}
+		
+		
+	});
+
+	it('should violate a custom rate limit even when there is a slash at the end of the path', async function ()  {
+
+		
+		const args = options.customRoutes[0];
+		const request = {
+			ip: TEST_IP,
+			url: args.path+'/',
+			method: args.method,
+		};
+		const key = rateLimitRedis.getKey(TEST_IP, `${args.method}:${args.path}`);
+
+		try {
+			await rateLimitRedis.reset(key);
+		} catch (err) {
+			return Promise.reject(err);
+		}
+
+		for (let i = 1; i <= args.limit; i++) {
+
+			let response;
+
+			try {
+				response = await rateLimitRedis.process(request);
+			} catch (err) {
+				return Promise.reject(err);
+			}
+			
+			assert.strictEqual('status' in response, true);
+			assert.strictEqual('limit' in response, true);
+			assert.strictEqual('remaining' in response, true);
+			assert.strictEqual('timeframe' in response, true);
+			assert.strictEqual(response.timeframe, args.timeframe);
+			assert.strictEqual(response.limit, args.limit);
+
+			if (i < args.limit) {
+				assert.strictEqual(response.status, 200);
+				assert.strictEqual(response.remaining, args.limit-i);
+				assert.strictEqual('retry' in response, false);
+				assert.strictEqual('error' in response, false);
+			} else {
+				assert.strictEqual(response.status, 429);
+				assert.strictEqual(response.remaining, 0);
+				assert.strictEqual('retry' in response, true);
+				assert.strictEqual('error' in response, true);
+				assert.strictEqual( isNaN( response.retry ), false );
+			}
+
+		}
+		
+		
+	});
+
+	it('should violate a custom rate limit with regular expression path', async function ()  {
+
+		
+		const args = options.customRoutes[1];
+
+		const request = {
+			ip: TEST_IP,
+			url: '/regex/limit/55555',
+			method: args.method,
+		};
+
+		const key = rateLimitRedis.getKey(TEST_IP, `${args.method}:${args.path}`);
+
+		try {
+			await rateLimitRedis.reset(key);
+		} catch (err) {
+			return Promise.reject(err);
+		}
+
+		for (let i = 1; i <= args.limit; i++) {
+
+			let response;
+
+			try {
+				response = await rateLimitRedis.process(request);
+			} catch (err) {
+				return Promise.reject(err);
+			}
+			
+			assert.strictEqual('status' in response, true);
+			assert.strictEqual('limit' in response, true);
+			assert.strictEqual('remaining' in response, true);
+			assert.strictEqual('timeframe' in response, true);
+			assert.strictEqual(response.timeframe, args.timeframe);
+			assert.strictEqual(response.limit, args.limit);
+
+			if (i < args.limit) {
+				assert.strictEqual(response.status, 200);
+				assert.strictEqual(response.remaining, args.limit-i);
+				assert.strictEqual('retry' in response, false);
+				assert.strictEqual('error' in response, false);
+			} else {
+				assert.strictEqual(response.status, 429);
+				assert.strictEqual(response.remaining, 0);
+				assert.strictEqual('retry' in response, true);
+				assert.strictEqual('error' in response, true);
 				assert.strictEqual( isNaN( response.retry ), false );
 			}
 
@@ -357,7 +469,7 @@ describe('Rate Limit Redis Object Test', function() {
 			return Promise.reject(err);
 		}
 
-		const args = options.customRoutes[1];
+		const args = options.customRoutes[2];
 
 		const request = {
 			ip: TEST_IP,
@@ -375,11 +487,11 @@ describe('Rate Limit Redis Object Test', function() {
 				return Promise.reject(err);
 			}
 			
-			assert.strictEqual(response.hasOwnProperty('limit'), false);
-			assert.strictEqual(response.hasOwnProperty('remaining'), false);
-			assert.strictEqual(response.hasOwnProperty('retry'), false);
-			assert.strictEqual(response.hasOwnProperty('error'), false);
-			assert.strictEqual(response.hasOwnProperty('status'), true);
+			assert.strictEqual('limit' in response, false);
+			assert.strictEqual('remaining' in response, false);
+			assert.strictEqual('retry' in response, false);
+			assert.strictEqual('error' in response, false);
+			assert.strictEqual('status' in response, true);
 			assert.strictEqual(response.status, 200);
 
 		}

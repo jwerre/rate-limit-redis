@@ -1,43 +1,45 @@
 {
-  "name": "@jwerre/rate-limit-redis",
-  "version": "1.1.0",
-  "description": "A Redis based rate limiter for Node.js and Express.",
-  "main": "lib/index.js",
-  "scripts": {
-    "test": "mocha test",
-    "benchmark": "node test/benchmark.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "github:jwerre/rate-limit-redis"
-  },
-  "keywords": [
-    "redis",
-    "ratelimit",
-    "rate",
-    "limit",
-    "429",
-    "express",
-    "expressjs",
-    "cache",
-    "x-ratelimit-limit",
-    "x-ratelimit-remaining",
-    "retry-after",
-    "headers"
-  ],
-  "author": "Jonah Werre <jonahwerre@gmail.com>",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/jwerre/rate-limit-redis/issues"
-  },
-  "homepage": "https://github.com/jwerre/rate-limit-redis/blob/master/README.md",
-  "dependencies": {
-    "redis": "^3.0.2"
-  },
-  "devDependencies": {
-    "benchmark": "^2.1.4",
-    "express": "^4.17.1",
-    "mocha": "^4.0.1",
-    "supertest": "^4.0.2"
-  }
+    "name": "@jwerre/rate-limit-redis",
+    "version": "1.2.0",
+    "description": "A Redis based rate limiter for Node.js and Express.",
+    "main": "lib/index.js",
+    "scripts": {
+        "test": "mocha test --exit",
+        "benchmark": "node test/benchmark.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "github:jwerre/rate-limit-redis"
+    },
+    "keywords": [
+        "redis",
+        "ratelimit",
+        "rate",
+        "limit",
+        "429",
+        "express",
+        "expressjs",
+        "cache",
+        "x-ratelimit-limit",
+        "x-ratelimit-remaining",
+        "retry-after",
+        "headers"
+    ],
+    "author": "Jonah Werre <jonahwerre@gmail.com>",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/jwerre/rate-limit-redis/issues"
+    },
+    "homepage": "https://github.com/jwerre/rate-limit-redis/blob/master/README.md",
+    "dependencies": {
+        "lodash": "^4.17.21",
+        "redis": "^3.1.2"
+    },
+    "devDependencies": {
+        "benchmark": "^2.1.4",
+        "eslint": "^7.30.0",
+        "express": "^4.17.1",
+        "mocha": "^8.3.2",
+        "supertest": "^4.0.2"
+    }
 }

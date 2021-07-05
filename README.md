@@ -41,6 +41,11 @@ const rateLimitArgs = {
 			method: 'PUT',
 			timeframe: 120,
 			limit: 500,
+		{
+			path: /^\/regex\/[0-9]{5,10}\/?$/,
+			method: 'GET',
+			timeframe: 60,
+			limit: 25,
 		},
 		{
 			path: '/ignore/rate/limit',
@@ -88,15 +93,15 @@ rateLimitRedis.process(httpRequest)
 | `Object`		| `redis`	| Redis options [https://github.com/NodeRedis/node-redis#options-object-properties](more...) |
 | `String`		| `namespace`	| String to prepend to the Redis key e.g.: 'rate-limit:\<USER-IP\>'. |
 | `Number`		| `timeframe`	| Rate limit window in seconds. |
-| `Number`		| `limit`	| Maximum amount of requests allowed within timeframe. |
-| `Boolean`		| `headers`	| Whether to set rate limit headers or not. |
-| `[Object]`	| `customRoutes`	| A list of routes where you can set custom rate limits. This will create a new rate limit with a unique key based on the IP, method and path. |
-| `String`		| `customRoutes.path`	| The path to ignore (required). |
-| `String`		| `customRoutes.method`	| The request method of the ignored path (default: `get`). |
-| `Number`		| `customRoutes.timeframe`	| Rate limit window in seconds for custom route. |
-| `Number`		| `customRoutes.limit`	| Maximum amount of requests allowed within timeframe for custom route. |
-| `Boolean`		| `customRoutes.ignore`	| Rate limit request to this custom route will be ignored. *Be careful with this one.* |
-| `[String]`	| `whitelist`	| A list of IP addresses where rate limit should not apply. *This may be useful if you have automated tasks or health checks coming from known IPs and you don't want to apply a rate limit to them.* |
+| `Number`		| `limit` | Maximum amount of requests allowed within timeframe. |
+| `Boolean`		| `headers` | Whether to set rate limit headers or not. |
+| `[String]`	| `whitelist`	| A list of IP addresses where rate limit should not apply. *This may be useful if you have automated tasks, probes or health checks coming from known IPs and you don't want to apply a rate limit to them.* |
+| `[Object]`	| `customRoutes` | A list of routes where you can set custom rate limits. This will create a new rate limit with a unique key based on the IP, method and path. |
+| `String\|RegExp`| `customRoutes.path` | The path to ignore (required). *Note: Do not user trailing slash.*|
+| `String`		| `customRoutes.method` | The request method of the ignored path (default: `get`). |
+| `Number`		| `customRoutes.timeframe` | Rate limit window in seconds for custom route. |
+| `Number`		| `customRoutes.limit` | Maximum amount of requests allowed within timeframe for custom route. |
+| `Boolean`		| `customRoutes.ignore` | Rate limit request to this custom route will be ignored. *Be careful with this one.* |
 
 
 ## Accuracy
