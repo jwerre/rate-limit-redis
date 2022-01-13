@@ -1,5 +1,5 @@
 const assert = require('assert');
-const rateLimitRedis = require('../lib');
+const {rateLimitRedis} = require('../lib');
 const request = require('supertest');
 const express = require('express');
 
@@ -20,11 +20,11 @@ describe('Rate Limit Redis Server Test', function() {
 	
 	let server;
 
-	before( function ()  {
+	before( async function ()  {
 	
 		app.enable('trust proxy');
 	
-		app.use( rateLimitRedis(options) );
+		app.use( await rateLimitRedis(options) );
 	
 		app.get('/', (req, res) => {
 			process.nextTick( () => res.send('OK') );
@@ -35,7 +35,10 @@ describe('Rate Limit Redis Server Test', function() {
 	});
 
 	after(function(done){
-		server.close( () => done() );
+		server.close( () => {
+			global.rateLimitRedis.disconnect();
+			done();
+		});
 	});
 
 	it('should make requests until rate limit is reached', async function ()  {

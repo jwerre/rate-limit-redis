@@ -18,41 +18,41 @@ npm install --save @jwerre/rate-limit-redis
 ## Usage
 
 ```js
-const rateLimitRedis = require('@jwerre/rate_limit_redis');
+const {rateLimitRedis} = require('@jwerre/rate_limit_redis');
 const app = require('express')();
 const rateLimitArgs = {
-	redis: {
-		host: '127.0.0.1',
-		port: 6379,
-	},
-	timeframe: 60,
-	limit: 120,
-	headers: true,
-	whitelist: [ '192.168.20.20' ],
-	customRoutes: [
-		{
-			path: '/stingy/rate/limit',
-			method: 'POST',
-			timeframe: 30,
-			limit: 5,
-		},
-		{
-			path: '/loose/rate/limit',
-			method: 'PUT',
-			timeframe: 120,
-			limit: 500,
-		{
-			path: /^\/regex\/[0-9]{5,10}\/?$/,
-			method: 'GET',
-			timeframe: 60,
-			limit: 25,
-		},
-		{
-			path: '/ignore/rate/limit',
-			method: 'GET',
-			ignore: true
-		},
-	]
+  redis: {
+    host: '127.0.0.1',
+    port: 6379,
+  },
+  timeframe: 60,
+  limit: 120,
+  headers: true,
+  whitelist: [ '192.168.20.20' ],
+  customRoutes: [
+    {
+      path: '/stingy/rate/limit',
+      method: 'POST',
+      timeframe: 30,
+      limit: 5,
+    },
+    {
+      path: '/loose/rate/limit',
+      method: 'PUT',
+      timeframe: 120,
+      limit: 500,
+    {
+      path: /^\/regex\/[0-9]{5,10}\/?$/,
+      method: 'GET',
+      timeframe: 60,
+      limit: 25,
+    },
+    {
+      path: '/ignore/rate/limit',
+      method: 'GET',
+      ignore: true
+    },
+  ]
 };
 
 // use trust proxy if behind load balancer
@@ -62,51 +62,93 @@ app.use( rateLimitRedis(rateLimitArgs) );
 
 app.get('/', (req, res) => { res.send('OK') ); });
 
-app.listen( 8080 );
+const server = app.listen( 8080 );
+
+server.on('error', () => {
+  // rateLimitRedis is added to the global scope so you can 
+  // close the connection properly
+  // see: https://nodejs.org/docs/latest-v14.x/api/globals.html
+  global.rateLimitRedis.disconnect();
+});
 
 ```
 
 ### Alternate Usage
+
 If you need a little more control, you can instantiate the `RateLimitRedis` class yourself.
 
 ```js
-const RateLimitRedis = require('@jwerre/rate_limit_redis/lib/rate_limit_redis');
+const {RateLimitRedis} = require('@jwerre/rate_limit_redis');
 
 const rateLimitRedis = new RateLimitRedis({
-	timeframe: 60,
-	limit: 120,
+  timeframe: 60,
+  limit: 120,
 });
 
 rateLimitRedis.process(httpRequest)
-	.then((res) => {
-		console.log(res);
-	})
-	.catch((err) => {
-		console.error(err);
-	})
+  .then((res) => {
+    console.log(res);
+  })
+  .catch((err) => {
+    console.error(err);
+  })
+
 
 ```
 
-## API
-| Data Type	| Argument	| Description	|
-| --		| --		| --			|
-| `Object`		| `redis`	| Redis options [https://github.com/NodeRedis/node-redis#options-object-properties](more...) |
-| `String`		| `namespace`	| String to prepend to the Redis key e.g.: 'rate-limit:\<USER-IP\>'. |
-| `Number`		| `timeframe`	| Rate limit window in seconds. |
-| `Number`		| `limit` | Maximum amount of requests allowed within timeframe. |
-| `Boolean`		| `headers` | Whether to set rate limit headers or not. |
-| `[String]`	| `whitelist`	| A list of IP addresses where rate limit should not apply. *This may be useful if you have automated tasks, probes or health checks coming from known IPs and you don't want to apply a rate limit to them.* |
-| `[Object]`	| `customRoutes` | A list of routes where you can set custom rate limits. This will create a new rate limit with a unique key based on the IP, method and path. |
-| `String\|RegExp`| `customRoutes.path` | The path to ignore (required). *Note: Do not user trailing slash.*|
-| `String`		| `customRoutes.method` | The request method of the ignored path (default: `get`). |
-| `Number`		| `customRoutes.timeframe` | Rate limit window in seconds for custom route. |
-| `Number`		| `customRoutes.limit` | Maximum amount of requests allowed within timeframe for custom route. |
-| `Boolean`		| `customRoutes.ignore` | Rate limit request to this custom route will be ignored. *Be careful with this one.* |
+## Arguments
 
+| Data Type | Argument | Description |
+| --  | --  | --   |
+| `Object`  | `redis` | Redis options [https://github.com/redis/node-redis/blob/master/docs/client-configuration.md](more...) |
+| `String`  | `namespace` | String to prepend to the Redis key e.g.: 'rate-limit:\<USER-IP\>'. |
+| `Number`  | `timeframe` | Rate limit window in seconds. |
+| `Number`  | `limit` | Maximum amount of requests allowed within timeframe. |
+| `Boolean`  | `headers` | Whether to set rate limit headers or not. |
+| `[String]` | `whitelist` | A list of IP addresses where rate limit should not apply. *This may be useful if you have automated tasks, probes or health checks coming from known IPs and you don't want to apply a rate limit to them.* |
+| `[Object]` | `customRoutes` | A list of routes where you can set custom rate limits. This will create a new rate limit with a unique key based on the IP, method and path. |
+| `String\|RegExp`| `customRoutes.path` | The path to ignore (required). *Note: Do not user trailing slash.*|
+| `String`  | `customRoutes.method` | The request method of the ignored path (default: `get`). |
+| `Number`  | `customRoutes.timeframe` | Rate limit window in seconds for custom route. |
+| `Number`  | `customRoutes.limit` | Maximum amount of requests allowed within timeframe for custom route. |
+| `Boolean`  | `customRoutes.ignore` | Rate limit request to this custom route will be ignored. *Be careful with this one.* |
+
+## Methods
+
+### `process(request)`
+
+Process HTTP request.
+
+#### Argumements
+
+[HTTP request](https://nodejs.org/docs/latest-v14.x/api/http.html#http_class_http_clientrequest): The http request to rate limit
+
+#### Returns
+
+`Promise`: Object containing rate limit information e.g.:
+
+```js
+{
+  status: 200,
+  limit: 100,
+  timeframe: 2,
+  remaining: 99,
+  retry: Number // if status is 429
+  error: Error // if status is 429
+}
+```
+
+### `disconnect()`
+
+Close redis connection.
+
+#### Returns
+
+`Promise`
 
 ## Accuracy
 
-This module uses [Redis Expire](https://redis.io/commands/expire) to manage rate limit requests. If using Redis 2.4 or lower, accuracy could be as much as 1 second off. 
+This module uses [Redis Expire](https://redis.io/commands/expire) to manage rate limit requests. If using Redis 2.4 or lower, accuracy could be as much as 1 second off.
 
 ## Testing
 
