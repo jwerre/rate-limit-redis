@@ -116,6 +116,10 @@ describe('Rate Limit Redis Class Test', function() {
 		}
 
 		assert.ok(result);
+		assert.strictEqual( !isNaN(result), true );
+		assert.strictEqual( result <= TIMEFRAME_SEC*1000, true );
+		assert.strictEqual( result > ( TIMEFRAME_SEC*1000 ) - 100, true );
+		
 		
 	});
 
@@ -228,7 +232,6 @@ describe('Rate Limit Redis Class Test', function() {
 			assert.strictEqual('remaining' in response, true);
 			assert.strictEqual(response.limit, RATE_LIMIT);
 			assert.strictEqual(response.timeframe, TIMEFRAME_SEC);
-
 			
 			if (i < RATE_LIMIT) {
 				assert.strictEqual(response.status, 200);
@@ -262,7 +265,7 @@ describe('Rate Limit Redis Class Test', function() {
 		} catch (err) {
 			return Promise.reject(err);
 		}
-		
+
 		assert.ok(result);
 		assert.strictEqual('status' in result, true);
 		assert.strictEqual('limit' in result, true);
