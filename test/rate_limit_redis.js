@@ -115,11 +115,9 @@ describe('Rate Limit Redis Class Test', function() {
 			return Promise.reject(err);
 		}
 
-		assert.ok(result);
 		assert.strictEqual( !isNaN(result), true );
 		assert.strictEqual( result <= TIMEFRAME_SEC*1000, true );
 		assert.strictEqual( result > ( TIMEFRAME_SEC*1000 ) - 100, true );
-		
 		
 	});
 
