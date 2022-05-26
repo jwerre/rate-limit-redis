@@ -1,6 +1,7 @@
 const assert = require('assert');
 const {RateLimitRedis} = require('../lib');
 const RedisClient = require('@node-redis/client/dist/lib/client').default;
+const { createClient } = require('redis');
 
 const TEST_IP = '192.168.0.1';
 const TIMEFRAME_SEC = 2;
@@ -43,6 +44,14 @@ describe('Rate Limit Redis Class Test', function() {
 	after ( async function ()  {
 		await rateLimitRedis.reset( rateLimitRedis.getKey(TEST_IP) );
 		return rateLimitRedis.disconnect();
+	});
+
+	it('should instanitate with a redis client instead of redis options', function(){
+		const tlr = new RateLimitRedis( createClient(options) );
+		tlr.connect();
+		assert.strictEqual(tlr.redisClient instanceof RedisClient, true);
+		assert.strictEqual(tlr.redisClient.isOpen, true);
+		tlr.disconnect();
 	});
 
 	it('should have set the correct properties', function() {

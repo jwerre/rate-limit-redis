@@ -13,6 +13,7 @@ describe('Rate Limit Redis Server Test', function() {
 	const app = express();
 	
 	const options = {
+		// redis: { uri: 'redis://invalid:9999' },
 		timeframe: TIMEFRAME_SEC,
 		limit: RATE_LIMIT,
 		// headers: true,
