@@ -1,44 +1,69 @@
 {
-    "name": "@jwerre/rate-limit-redis",
-    "version": "2.0.0",
-    "description": "A Redis based rate limiter for Node.js and Express.",
-    "main": "lib/index.js",
-    "scripts": {
-        "test": "mocha test --exit",
-        "benchmark": "node test/benchmark.js"
-    },
-    "repository": {
-        "type": "git",
-        "url": "github:jwerre/rate-limit-redis"
-    },
-    "keywords": [
-        "redis",
-        "ratelimit",
-        "rate",
-        "limit",
-        "429",
-        "express",
-        "expressjs",
-        "cache",
-        "x-ratelimit-limit",
-        "x-ratelimit-remaining",
-        "retry-after",
-        "headers"
-    ],
-    "author": "Jonah Werre <jonahwerre@gmail.com>",
-    "license": "ISC",
-    "bugs": {
-        "url": "https://github.com/jwerre/rate-limit-redis/issues"
-    },
-    "homepage": "https://github.com/jwerre/rate-limit-redis/blob/master/README.md",
-    "dependencies": {
-        "redis": "^4.0.2"
-    },
-    "devDependencies": {
-        "benchmark": "^2.1.4",
-        "eslint": "^7.30.0",
-        "express": "^4.17.1",
-        "mocha": "^8.3.2",
-        "supertest": "^4.0.2"
-    }
+	"name": "@jwerre/rate-limit-redis",
+	"version": "2.0.0",
+	"description": "A Redis based rate limiter for Node.js and Express.",
+	"type": "module",
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.mjs",
+	"exports": {
+		".": {
+			"import": "./dist/index.mjs",
+			"require": "./dist/index.cjs"
+		}
+	},
+	"scripts": {
+		"test": "mocha test --exit",
+		"clean": "rm -rf dist",
+		"prebuild": "npm run clean",
+		"build": "rollup -c",
+		"lint": "eslint .",
+		"spell": "cspell .",
+		"test:cjs": "node -e 'const {RateLimitRedis} = require(\"./\"); console.log(RateLimitRedis);'",
+		"test:esm": "node -e 'import {RateLimitRedis} from \"./\"; console.log(RateLimitRedis);'",
+		"release:dry": "semantic-release --dry-run",
+		"release": "semantic-release"
+	},
+	"repository": {
+		"type": "git",
+		"url": "github:jwerre/rate-limit-redis"
+	},
+	"keywords": [
+		"redis",
+		"ratelimit",
+		"rate",
+		"limit",
+		"429",
+		"express",
+		"expressjs",
+		"cache",
+		"x-ratelimit-limit",
+		"x-ratelimit-remaining",
+		"retry-after",
+		"headers"
+	],
+	"author": "Jonah Werre <jonahwerre@gmail.com>",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/jwerre/rate-limit-redis/issues"
+	},
+	"homepage": "https://github.com/jwerre/rate-limit-redis/blob/master/README.md",
+	"dependencies": {
+		"redis": "^5.8.1"
+	},
+	"devDependencies": {
+		"@eslint/js": "^9.33.0",
+		"@rollup/plugin-node-resolve": "^16.0.1",
+		"@semantic-release/commit-analyzer": "^13.0.1",
+		"@semantic-release/github": "^11.0.4",
+		"@semantic-release/npm": "^12.0.2",
+		"@semantic-release/release-notes-generator": "^14.0.3",
+		"benchmark": "^2.1.4",
+		"cspell": "^9.2.0",
+		"eslint": "^9.33.0",
+		"express": "^4.17.1",
+		"mocha": "^11.7.1",
+		"rollup": "^4.46.3",
+		"semantic-release": "^24.2.7",
+		"supertest": "^4.0.2"
+	}
 }

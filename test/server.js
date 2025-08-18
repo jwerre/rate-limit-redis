@@ -1,7 +1,7 @@
-const assert = require('assert');
-const {rateLimitRedis} = require('../lib');
-const request = require('supertest');
-const express = require('express');
+import assert from 'assert';
+import {rateLimitRedis} from '../lib/index.js';
+import request from 'supertest';
+import express from 'express';
 
 const TEST_IP = '192.168.0.2';
 const TIMEFRAME_SEC = 1;
@@ -13,7 +13,9 @@ describe('Rate Limit Redis Server Test', function() {
 	const app = express();
 	
 	const options = {
-		// redis: { uri: 'redis://invalid:9999' },
+		redis: { 
+			uri: `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}` 
+		},
 		timeframe: TIMEFRAME_SEC,
 		limit: RATE_LIMIT,
 		// headers: true,

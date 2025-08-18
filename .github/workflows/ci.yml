@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ master, next, next-major, beta, alpha ]
+  push:
+    branches-ignore:
+      - master
+      - next
+      - next-major
+      - beta
+      - alpha
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: >-
+          --name redis-test
+          --ulimit nofile=1024:1024
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install packages
+        run: npm ci --ignore-scripts=false
+
+      - name: Security audit
+        run: npm audit --audit-level=moderate --omit=dev
+
+      - name: Lint check
+        run: npm run lint
+
+      - name: Spell check
+        run: npm run spell
+
+      - name: Unit tests
+        run: npm test
+        env:
+          REDIS_HOST: redis
+          REDIS_PORT: 6379
+
+      - name: Build dist directory
+        run: npm run build
+
+      - name: Verify dist files
+        run: |
+          echo "Checking dist directory contents:"
+          ls -la dist/
+          echo "Verifying CommonJS build:"
+          npm run test:cjs
+          echo "Verifying ES Module build:"
+          npm run test:esm
+
+      - name: Dry run semantic-release
+        if: github.event_name == 'pull_request'
+        run: npm run release:dry
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
