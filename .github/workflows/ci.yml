@@ -46,6 +46,8 @@ jobs:
         run: npm run lint
 
       - name: Spell check
+        # Cspell only work with Node.js versions 20 and above.
+        if: startsWith(matrix.node-version, '20.') || startsWith(matrix.node-version, '22.')
         run: npm run spell
 
       - name: Unit tests
