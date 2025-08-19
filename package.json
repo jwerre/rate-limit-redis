@@ -2,7 +2,6 @@
 	"name": "@jwerre/rate-limit-redis",
 	"version": "2.0.0",
 	"description": "A Redis based rate limiter for Node.js and Express.",
-	"type": "module",
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.mjs",
 	"exports": {
@@ -12,16 +11,14 @@
 		}
 	},
 	"scripts": {
-		"test": "mocha test --exit",
-		"clean": "rm -rf dist",
-		"prebuild": "npm run clean",
-		"build": "rollup -c",
+		"build": "rm -rf dist && rollup -c",
 		"lint": "eslint .",
-		"spell": "cspell .",
-		"test:cjs": "node -e 'const {RateLimitRedis} = require(\"./\"); console.log(RateLimitRedis);'",
-		"test:esm": "node -e 'import {RateLimitRedis} from \"./\"; console.log(RateLimitRedis);'",
+		"release": "semantic-release",
 		"release:dry": "semantic-release --dry-run",
-		"release": "semantic-release"
+		"spell": "cspell .",
+		"test": "mocha test --exit",
+		"test:cjs": "npm run build && node -e 'const {RateLimitRedis} = require(\"./dist/index.cjs\"); console.log(RateLimitRedis);'",
+		"test:esm": "npm run build && node --input-type=module -e 'import {RateLimitRedis} from \"./dist/index.mjs\"; console.log(RateLimitRedis);'"
 	},
 	"repository": {
 		"type": "git",

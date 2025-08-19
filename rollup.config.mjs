@@ -3,7 +3,7 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 export default [
 	// ES Module build
 	{
-		input: 'lib/index.js',
+		input: 'lib/index.mjs',
 		output: {
 			file: 'dist/index.mjs',
 			format: 'es'
@@ -13,7 +13,7 @@ export default [
 	},
 	// CommonJS build
 	{
-		input: 'lib/index.js',
+		input: 'lib/index.mjs',
 		output: {
 			file: 'dist/index.cjs',
 			format: 'cjs',

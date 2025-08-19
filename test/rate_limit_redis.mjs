@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { createClient } from 'redis';
-import { RateLimitRedis } from '../lib/index.js';
+import { RateLimitRedis } from '../lib/index.mjs';
 // import RedisClient = from('@node-redis/client/dist/lib/client').default;
 
 const TEST_IP = '192.168.0.1';

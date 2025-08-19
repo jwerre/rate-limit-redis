@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {rateLimitRedis} from '../lib/index.js';
+import {rateLimitRedis} from '../lib/index.mjs';
 import request from 'supertest';
 import express from 'express';
 
