@@ -12,6 +12,7 @@
 	},
 	"scripts": {
 		"build": "rm -rf dist && rollup -c",
+		"check": "npm run lint && npm run spell && npm run test",
 		"lint": "eslint .",
 		"release": "semantic-release",
 		"release:dry": "semantic-release --dry-run",
@@ -54,13 +55,12 @@
 		"@semantic-release/github": "^11.0.4",
 		"@semantic-release/npm": "^12.0.2",
 		"@semantic-release/release-notes-generator": "^14.0.3",
-		"benchmark": "^2.1.4",
 		"cspell": "^9.2.0",
 		"eslint": "^9.33.0",
-		"express": "^4.17.1",
+		"express": "^5.1.0",
 		"mocha": "^11.7.1",
 		"rollup": "^4.46.3",
 		"semantic-release": "^24.2.7",
-		"supertest": "^4.0.2"
+		"supertest": "^7.1.4"
 	}
 }

@@ -89,6 +89,4 @@ cache expire. Run the test again in ${TIMEFRAME_SEC} second(s)`);
 		
 	});
 
-	
-
 });
