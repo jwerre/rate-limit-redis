@@ -69,7 +69,7 @@ jobs:
           npm run test:esm
 
       - name: Dry run semantic-release
-        if: github.event_name == 'pull_request'
+        if: (startsWith(matrix.node-version, '20.') || startsWith(matrix.node-version, '22.'))
         run: npm run release:dry
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
