@@ -64,18 +64,15 @@ jobs:
       - name: Build dist directory
         run: npm run build
 
-      - name: Verify dist files
+      - name: Verify build
         run: |
-          echo "Checking dist directory contents:"
-          ls -la dist/
           echo "Verifying CommonJS build:"
-          npm run test:cjs
+          node -e 'const {RateLimitRedis} = require("./dist/index.cjs"); console.log(RateLimitRedis);'
           echo "Verifying ES Module build:"
-          npm run test:esm
+          node --input-type=module -e 'import {RateLimitRedis} from "./dist/index.mjs"; console.log(RateLimitRedis);'
 
       - name: Release
         run: npm run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
