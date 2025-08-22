@@ -18,8 +18,11 @@ npm install --save @jwerre/rate-limit-redis
 ## Usage
 
 ```js
-const {rateLimitRedis} = require('@jwerre/rate_limit_redis');
-const app = require('express')();
+import { rateLimitRedis } from '@jwerre/rate_limit_redis';
+import express from 'express';
+
+const app = express();
+
 const rateLimitArgs = {
   redis: {
     url: 'redis://127.0.0.1:6379',
@@ -77,7 +80,7 @@ server.on('error', () => {
 If you need a little more control, you can instantiate the `RateLimitRedis` class yourself.
 
 ```js
-const {RateLimitRedis} = require('@jwerre/rate-limit-redis');
+import {RateLimitRedis} from '@jwerre/rate-limit-redis';
 
 const rateLimitRedis = new RateLimitRedis({
   redis: {
