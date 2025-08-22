@@ -116,7 +116,7 @@ rateLimitRedis.connect().then( () => {
 | `Number`  | `timeframe` | Rate limit window in seconds. |
 | `Number`  | `limit` | Maximum amount of requests allowed within timeframe. |
 | `Boolean`  | `headers` | Whether to set rate limit headers or not. |
-| `Boolean`  | `autoConnect` | Whether to automaitcally connect to redis before proccess http request (default: true). |
+| `Boolean`  | `autoConnect` | Whether to automatically connect to redis before processing http request (default: true). |
 | `[String]` | `whitelist` | A list of IP addresses where rate limit should not apply. *This may be useful if you have automated tasks, probes or health checks coming from known IPs and you don't want to apply a rate limit to them.* |
 | `[Object]` | `customRoutes` | A list of routes where you can set custom rate limits. This will create a new rate limit with a unique key based on the IP, method and path. |
 | `String\|RegExp`| `customRoutes.path` | The path to ignore (required). *Note: Do not user trailing slash.*|
@@ -131,7 +131,7 @@ rateLimitRedis.connect().then( () => {
 
 Process HTTP request.
 
-#### Argumements
+#### Arguments
 
 [HTTP request](https://nodejs.org/docs/latest-v14.x/api/http.html#http_class_http_clientrequest): The http request to rate limit
 
@@ -164,13 +164,10 @@ This module uses [Redis Expire](https://redis.io/commands/expire) to manage rate
 
 ## Testing
 
-Ensure Node.js and Redis are installed and running. Then execute the following commands:
+Ensure Node.js is installed and Redis is running on default port 6737.
 
-```bash
+```sh
+docker run -d --name redis -p 6379:6379 redis:latest # if you don't have redis running locally already
 npm install
 npm test
 ```
-
-## Benchmark
-
-TODO: Set up benchmark test.
