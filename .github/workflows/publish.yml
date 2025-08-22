@@ -72,7 +72,6 @@ jobs:
           echo "Verifying ES Module build:"
           node --input-type=module -e 'import {RateLimitRedis} from "./dist/index.mjs"; console.log(RateLimitRedis);'
 
-
       - name: Release
         run: npm run release
         env:
