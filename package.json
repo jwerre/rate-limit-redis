@@ -18,8 +18,6 @@
 		"release:dry": "semantic-release --dry-run",
 		"spell": "cspell .",
 		"test": "mocha test --exit",
-		"test:cjs": "npm run build && node -e 'const {RateLimitRedis} = require(\"./dist/index.cjs\"); console.log(RateLimitRedis);'",
-		"test:esm": "npm run build && node --input-type=module -e 'import {RateLimitRedis} from \"./dist/index.mjs\"; console.log(RateLimitRedis);'"
 	},
 	"repository": {
 		"type": "git",
