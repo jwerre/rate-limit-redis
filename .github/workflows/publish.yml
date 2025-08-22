@@ -68,9 +68,10 @@ jobs:
       - name: Verify build
         run: |
           echo "Verifying CommonJS build:"
-          node -e 'const {RateLimitRedis} = require(\"./dist/index.cjs\"); console.log(RateLimitRedis);'
+          node -e 'const {RateLimitRedis} = require("./dist/index.cjs"); console.log(RateLimitRedis);'
           echo "Verifying ES Module build:"
-          node --input-type=module -e 'import {RateLimitRedis} from \"./dist/index.mjs\"; console.log(RateLimitRedis);'
+          node --input-type=module -e 'import {RateLimitRedis} from "./dist/index.mjs"; console.log(RateLimitRedis);'
+
 
       - name: Release
         run: npm run release
