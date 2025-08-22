@@ -3,7 +3,6 @@ name: Publish module
 on:
   push:
     branches:
-      - ci
       - master
       - next
       - next-major
