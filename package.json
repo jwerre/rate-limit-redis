@@ -40,7 +40,7 @@
 		"headers"
 	],
 	"author": "Jonah Werre <jonahwerre@gmail.com>",
-	"license": "ISC",
+	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/jwerre/rate-limit-redis/issues"
 	},
